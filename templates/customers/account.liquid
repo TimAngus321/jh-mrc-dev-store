@@ -1,0 +1,81 @@
+<div class="page-width">
+  <div class="section-header text-center">
+    <h1>{{ 'customer.account.title' | t }}</h1>
+    <h2>{{ customer.name }}</h2>
+    <h2>Cutomer tax exempt status: {{ customer.tax_exempt }}</h2>
+    <h2>Vat ID connected to customer: {{ customer.metafields.a9design_b2breg.vatid }}</h2>
+    <h2>Vat Id connected to order:  {{ attributes.vatid }} </h2>
+    <h2>Vat Id connected to order: {% for attribute in attributes %}{{ attribute.first }}{{ attribute.last }}{% endfor %}</h2>
+    <h2>Vat Id connected to order: {% for attribute in attributes %}{{ attributes.vatid}} {% endfor %}</h2>
+    <h2>{% if order.attributes %}
+  			{% for attribute in order.attributes %}
+      			{{ attribute | first }}{{ attribute | last }}
+    	{% endfor %}
+   	{% endif %}</h2>
+    {% for tag in order.tags %}
+    {{ tag }}
+{% endfor %}
+    
+    {% for attribute in customer.attributes %}
+    {{ customer.attribute.vatid }}
+    {% endfor %}
+    
+    <h2>Vat Id from order:{% if order.attributes %} {{ attribute | first }} {{ attribute | last }} {% endif %}</h2>
+    <h2>{{ order.attributes.vatid}}</h2>
+    <h2>{% for attribute in attributes %} {{ attribute.first }} {{ attribute.last }} {% endfor %}</h2>
+
+    {{ 'layout.customer.log_out' | t | customer_logout_link }}
+  </div>
+
+  <div class="grid myaccount">
+    <div class="grid__item myaccount__order-history">
+      <h2>{{ 'customer.orders.title' | t }}</h2>
+      
+
+      {% paginate customer.orders by 20 %}
+        {% if customer.orders.size != 0 %}
+
+          <table class="responsive-table">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'customer.orders.order_number' | t }}</th>
+                <th scope="col">{{ 'customer.orders.date' | t }}</th>
+                <th scope="col">{{ 'customer.orders.payment_status' | t }}</th>
+                <th scope="col">{{ 'customer.orders.fulfillment_status' | t }}</th>
+                <th scope="col">{{ 'customer.orders.total' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in customer.orders %}
+                <tr>
+                  <th data-label="{{ 'customer.orders.order_number' | t }}" scope="row">
+                    <a href="{{ order.customer_url }}" class="btn btn--secondary btn--small" aria-label="{{ 'customer.orders.order_number_link' | t: number: order.name }}">{{ order.name }}</a>
+                  </th>
+                  <td data-label="{{ 'customer.orders.date' | t }}">{{ order.created_at | time_tag: format: 'date' }}</td>
+                  <td data-label="{{ 'customer.orders.payment_status' | t }}">{{ order.financial_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.total' | t }}">{{ order.total_price | money }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        {% else %}
+
+          <p>{{ 'customer.orders.none' | t }}</p>
+
+        {% endif %}
+        {%- if paginate.pages > 1 -%}
+          {% include 'pagination', paginate: paginate %}
+        {%- endif -%}
+      {% endpaginate %}
+    </div>
+    <div class="grid__item myaccount__account-details">
+      <h2>{{ 'customer.account.details' | t }}</h2>
+
+      {{ customer.default_address | format_address }}
+
+      <p><a href="{{ routes.account_addresses_url }}" class="btn btn--small">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p>
+    </div>
+  </div>
+</div>
