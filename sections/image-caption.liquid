@@ -1,0 +1,72 @@
+<div class="caption__section-container"></div>
+
+    <h3>
+        {{ sections.settings.title}}
+    </h3>
+        <div class="caption__inner-container">
+            {% for block in section.blocks %}
+        <div class="caption__image-container">
+            <img src="{{ block.settings.image | img_url: 'master' }}" />
+          <p class="caption">{{ block.settings.text | escape }} </p>
+            {% endfor %}
+   
+</div>
+
+<style>
+    .caption__inner-container {
+        display: flex;
+    }
+
+    .caption__image-container img {
+        width: 30%;
+    }
+  	
+  	.caption {
+      	font-size: 10px;
+      	color: grey;
+      }
+</style>
+
+{% schema %}
+{
+    "name": "Caption Images",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Enter Title",
+            "default": "Caption Section"
+
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "name": "images",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": "Image",
+                    "info": "800 x 800px recommended"
+                },
+          		{
+          			"type": "text",
+          			"id": "text",
+          			"label": "Caption",
+          			"info": "Insert a short caption to an image"
+          		}
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": "Caption Images",
+            "category": "Image"
+        }
+    ]
+}
+{% endschema %}
+
+
+
