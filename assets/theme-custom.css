@@ -1,0 +1,45 @@
+/* Put custom css here - only when needed */
+
+
+/* CSS fix for captions in static-about.liquid  */
+.caption-header-image  {
+    height: 34px;
+    opacity: 0.8;
+    font-size: 12px;
+    line-height: 17px;
+    margin-top: -70px;
+    margin-left: 20px;
+  	margin-right: 20px;
+  	width: auto;
+  	height: auto;
+}
+   .gallery-caption {
+     display: block;
+     opacity: 0.8;
+     font-size: 12px;
+     line-height: 17px;
+  	 width: auto;
+  	 height: auto; 
+     
+    }
+
+    .caption-margin-fix {
+      	display: block;
+        margin: 0px;
+      	opacity: 0.8;
+      }
+      
+	.about__images {
+      margin-bottom: 0px;
+	}
+
+	.caption  {
+     opacity: 0.8;
+     font-size: 12px;
+     line-height: 17px;
+     margin-top: 10px;
+     text-align: center;
+	}
+        
+        
+      
