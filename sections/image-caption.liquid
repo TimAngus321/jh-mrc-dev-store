@@ -1,13 +1,13 @@
-<div class="caption__section-container">
+<div class= "caption__section-container">
 
     <h3>
         {{ sections.settings.title}}
     </h3>
-        <div class="caption__inner-container">
+        <div class= "caption__inner-container">
             {% for block in section.blocks %}
                 <div class="caption__image-container">
-                    <img src="{{ block.settings.image | img_url: 'master' }}" />
-                        <p class="caption-test">{{ block.settings.text | escape }} </p>
+                    <img src= "{{ block.settings.image | img_url: 'master' }}" />
+                        <p class="caption-test"> {{ block.settings.text | escape }} </p>
             {% endfor %}
                 </div>
         </div>
