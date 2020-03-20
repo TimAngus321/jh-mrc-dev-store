@@ -1,0 +1,56 @@
+{% unless product.has_only_default_variant %}
+        {% render 'swatch' %}
+    	{% comment %}
+    	{% for option in product.options_with_values %}
+          <div class="selector-wrapper js mb3">
+            <label for="SingleOptionSelector-{{ forloop.index0 }}" class="dib mb2">
+              {{ option.name }}
+            </label>
+
+            <div class="select-wrapper">
+              <select
+                id="SingleOptionSelector-{{ forloop.index0 }}"
+                data-single-option-selector
+                data-index="option{{ option.position }}"
+                class="input-reset input w-100">
+                {% for value in option.values %}
+                  <option
+                    value="{{ value | escape }}"
+                    {% if option.selected_value == value %}selected="selected"{% endif %}>
+                      {{ value }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        {% endfor %}
+    	{% endcomment %}
+    
+      {% endunless %}
+
+      <select name="id" class="no-js product-single-page-variant" data-product-select>
+        {% for variant in product.variants %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+            {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        	<option
+            {% if variant == current_variant %}selected="selected"{% endif %}
+            {% unless variant.available %}disabled="disabled"{% endunless %}
+            value="{{ variant.id }}"
+                    data-id="{{ variant.id }}"
+                    data-compare-price="{{variant.compare_at_price}}"
+                    data-compare-price-html="{{ variant.compare_at_price | times:tax_price | money }} | {{ variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}"
+                    data-price="{{variant.price}}"
+                    data-price-html="{{ variant.price | times:tax_price | money }} | {{ variant.price | money }} {{settings.tax_rate_postfix_txt}}"
+                    data-value="{{ variant.title }}">
+              {{ variant.title }}
+          </option>
+        {% else %}
+          <option
+            {% if variant == current_variant %}selected="selected"{% endif %}
+            {% unless variant.available %}disabled="disabled"{% endunless %}
+            value="{{ variant.id }}">
+              {{ variant.title }}
+          </option>
+        {% endif %}
+        {% endfor %}
+      </select>

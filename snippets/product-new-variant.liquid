@@ -1,0 +1,214 @@
+<div class="product-pl-variations-wrapper">
+  <div data-price-wrapper class="pl-single-price-wrapper meta">
+      {% if settings.enable_taxes and settings.tax_rate != '' %}
+      <span data-product-price class="meta money2 product-pl-price" data-product-id="{{product.id}}">
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+        <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+        <s class="meta" data-compare-price>
+          {% if current_variant.compare_at_price > current_variant.price %}
+          {% if settings.enable_taxes and settings.tax_rate != '' %}
+          {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+          {{ current_variant.compare_at_price | times:tax_price | money }} | {{ current_variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}
+          {% else %}
+          {{ current_variant.compare_at_price | money }}
+          {% endif %}
+          {% endif %}
+        </s>
+        {% endif %}
+
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+
+        {% if current_variant.price_varies %}
+        {%- assign sale_price = current_variant.price | money -%}
+        {{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+        {% else %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.price | times:tax_price | money }} | {{ current_variant.price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+
+        {% else %}
+
+        {% if current_variant.price_varies %}
+        {%- assign price = current_variant.price | money -%}
+        {% capture bold_hook %}{{ price }}{% endcapture %}{{ 'products.product.from_text_html' | t: price: bold_hook }}
+        {% else %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.price | times:tax_price | money }} | {{ current_variant.price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+        {% endif %}
+      </span>
+      
+      <span data-product-price class="meta money-new hide" data-product-id="{{product.id}}">
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+        <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+        <s class="meta" data-compare-price>
+          {% if current_variant.compare_at_price > current_variant.price %}
+          {{ current_variant.compare_at_price | money }}
+          {% endif %}
+        </s>
+        {% endif %}
+
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+
+        {% if current_variant.price_varies %}
+        {%- assign sale_price = current_variant.price | money -%}
+        {{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+
+        {% else %}
+
+        {% if current_variant.price_varies %}
+        {%- assign price = current_variant.price | money -%}
+        {% capture bold_hook %}{{ price }}{% endcapture %}{{ 'products.product.from_text_html' | t: price: bold_hook }}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+      </span>
+      
+      {% endif %}
+      <span data-product-price class="meta money {% if settings.enable_taxes and settings.tax_rate != '' %}hide{% endif %}" data-product-id="{{product.id}}">
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+        <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+        <s class="meta" data-compare-price>
+          {% if current_variant.compare_at_price > current_variant.price %}
+          {% if settings.enable_taxes and settings.tax_rate != '' %}
+          {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+          {{ current_variant.compare_at_price | times:tax_price | money }} | {{ current_variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}
+          {% else %}
+          {{ current_variant.compare_at_price | money }}
+          {% endif %}
+          {% endif %}
+        </s>
+        {% endif %}
+
+        {% if current_variant.compare_at_price_max > current_variant.price %}
+
+        {% if current_variant.price_varies %}
+        {%- assign sale_price = current_variant.price | money -%}
+        {{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+        {% else %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.price | times:tax_price | money }} | {{ current_variant.price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+
+        {% else %}
+
+        {% if current_variant.price_varies %}
+        {%- assign price = current_variant.price | money -%}
+        {% capture bold_hook %}{{ price }}{% endcapture %}{{ 'products.product.from_text_html' | t: price: bold_hook }}
+        {% else %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.price | times:tax_price | money }} | {{ current_variant.price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+        {% endif %}
+      </span>
+    </div>
+          {% unless product.has_only_default_variant %}
+          	{% for option in product.options_with_values %}
+{% assign option_index = forloop.index0 %}
+<style>
+  label[for="product-select-option-{{ option_index }}"] { display: none; }
+  #product-select-option-{{ option_index }} { display: none; }
+  #product-select-option-{{ option_index }} + .custom-style-select-box { display: none !important; }
+</style>
+<script>$(window).load(function() { $('.selector-wrapper:eq({{ option_index }})').hide(); });</script>
+
+<div class="pl-swatch clearfix" data-option-index="{{ option_index }}">
+  <div class="header" style="display:none;">{{ option.name }}</div>
+  {% for value in option.values %}
+
+  <div data-value="{{ value | escape }}"
+       data-class="{{product.id}}-{{ forloop.index }}" 
+       class="swatch-pl-element {{ value | handle }} available {% if  option.selected_value == value %}swatch-active{% endif %}">
+
+    <input id="swatch-{{product.id}}-{{ option_index }}-{{ value | handle }}" 
+           type="radio" 
+           name="option-{{ option_index }}-{{product.id}}" 
+           value="{{ value | escape }}"
+           {% if  option.selected_value == value %} 
+           checked
+           {% endif %} 
+           data-single-option-selector  
+           data-index="option{{ option.position }}"/>
+
+    <label class="btn" for="swatch-{{product.id}}-{{ option_index }}-{{ value | handle }}">
+      {{ value }}
+    </label>
+    
+  </div>
+
+  {% endfor %}
+</div>
+{% endfor %}
+          {% endunless %}
+  <select name="id" class="no-js product-single-page-variant" data-product-select>
+        {% for variant in product.variants %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+            {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        	<option
+            {% if variant == current_variant %}selected="selected"{% endif %}
+            {% unless variant.available %}disabled="disabled"{% endunless %}
+            value="{{ variant.id }}"
+                    data-id="{{ variant.id }}"
+                    data-compare-price="{{variant.compare_at_price}}"
+                    data-compare-price-html="{{ variant.compare_at_price | times:tax_price | money }} | {{ variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}"
+                    data-price="{{variant.price}}"
+                    data-price-html="{{ variant.price | times:tax_price | money }} | {{ variant.price | money }} {{settings.tax_rate_postfix_txt}}"
+                    data-value="{{ variant.title }}">
+              {{ variant.title }}
+          </option>
+        {% else %}
+          <option
+            {% if variant == current_variant %}selected="selected"{% endif %}
+            {% unless variant.available %}disabled="disabled"{% endunless %}
+            value="{{ variant.id }}">
+              {{ variant.title }}
+          </option>
+        {% endif %}
+        {% endfor %}
+      </select>
+  
+          <input type="hidden" name="idw" value="" class="variant-hidden-value">
+          <ul class="no-js product-select-variant" data-product-id="price-{{product.id}}" data-product-select>
+          {% for variant in product.variants %}
+            {% include 'bold-variant' with variant, hide_action: 'skip' %}
+            {% if settings.enable_taxes and settings.tax_rate != '' %}
+            {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+            <li 
+                data-id="{{ variant.id }}" 
+                data-compare-price="{{variant.compare_at_price}}" 
+                data-compare-price-html="{{ variant.compare_at_price | times:tax_price | money }} | {{ variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}" 
+                data-price="{{variant.price}}" 
+                data-price-html="{{ variant.price | times:tax_price | money }} | {{ variant.price | money }} {{settings.tax_rate_postfix_txt}}" 
+                data-value="{{ variant.title }}" 
+                {% unless variant.available %}disabled="disabled"{% endunless %} 
+                class="{% unless variant.available %}unavailable-variant{% endunless %} 
+                       {{product.id}}-{{ forloop.index }}">
+            <span class="money-variant hide" data-compare-price="{{variant.compare_at_price | money}}" data-price="{{variant.price | money}}" data-product-id="{{product.id}}">{{ variant.price | money }}</span>
+            </li>
+            
+            {% else %}
+            <li data-id="{{ variant.id }}" data-compare-price="{{variant.compare_at_price}}" data-compare-price-html="{{variant.compare_at_price | money }}" data-price="{{variant.price}}" data-price-html="{{variant.price | money }}" data-value="{{ variant.title }}" {% unless variant.available %}disabled="disabled"{% endunless %} class="{% unless variant.available %}unavailable-variant{% endunless %} {{product.id}}-{{ forloop.index }}"></li>
+          	{% endif %}
+            {% endfor %}
+          </ul>
+        </div>

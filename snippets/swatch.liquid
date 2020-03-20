@@ -1,0 +1,36 @@
+{% for option in product.options_with_values %}
+{% assign option_index = forloop.index0 %}
+<style>
+  label[for="product-select-option-{{ option_index }}"] { display: none; }
+  #product-select-option-{{ option_index }} { display: none; }
+  #product-select-option-{{ option_index }} + .custom-style-select-box { display: none !important; }
+</style>
+<script>$(window).load(function() { $('.selector-wrapper:eq({{ option_index }})').hide(); });</script>
+
+<div class="swatch clearfix" data-option-index="{{ option_index }}">
+  <div class="header" style="display:none;">{{ option.name }}</div>
+  {% for value in option.values %}
+
+  <div data-value="{{ value | escape }}" 
+       class="swatch-element {{ value | handle }} available">
+
+    <input id="swatch-{{ option_index }}-{{ value | handle }}" 
+           type="radio" 
+           name="option-{{ option_index }}" 
+           value="{{ value | escape }}"
+           {% if  option.selected_value == value %} 
+           checked
+           {% endif %} 
+           data-single-option-selector  
+           data-index="option{{ option.position }}"/>
+
+    <label class="btn" for="swatch-{{ option_index }}-{{ value | handle }}">
+      {{ value }}
+    </label>
+    
+  </div>
+
+  {% endfor %}
+</div>
+{% endfor %}
+

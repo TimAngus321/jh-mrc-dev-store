@@ -1,0 +1,271 @@
+<div class="w-100 products__wrapper">
+{% if product.featured_image != blank %}
+  <div class="product-pl-inner">
+    <div class="product-pl-image">
+      <a href="{{ product.url | within: collection }}">
+        <div class="relative">
+          <div {% unless product.available %} class="o-70" {% endunless %}>
+            {% include 'responsive-image' with
+              image: product.featured_image,
+              max_width: 700,
+              max_height: 800
+            %}
+          </div>
+
+          {% comment %} SALE BADGE {% endcomment %}
+          {% if product.compare_at_price > product.price %}
+            <div class="type-body-small lh-title absolute top-0 left-0 mt2 ml2 pv1 ph2 bg-sale white br2 shadow-1">
+              {{ 'products.product.on_sale' | t }}
+            </div>
+          {% endif %}
+
+          {% comment %} SOLD OUT BADGE {% endcomment %}
+          {% unless product.available %}
+            <div class="type-body-small lh-title absolute top-0 left-0 mt2 ml2 pv1 ph2 bg-white br2 shadow-1">
+              {{ 'products.product.sold_out' | t }}
+            </div>
+          {% endunless %}
+        </div>
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+  <div class="product-pl-text-wrapper">
+    <h2 class="type-body-regular mt3 mb1">
+      <a href="{{ product.url | within: collection }}">{{ product.title }}</a>
+    </h2>
+    <p class="product-pl-vendor hide-on-grid">{{ product.type }}</p>
+    <p class="meta ma0 hide-on-list">
+      {% if product.compare_at_price > product.price %}
+        <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+        <s>
+          {% if settings.enable_taxes and settings.tax_rate != '' %}
+          {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+          {{ product.compare_at_price | times:tax_price | money }} | {{ product.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}
+          {% else %}
+          {{ product.compare_at_price | money }}
+          {% endif %}
+      </s>
+      {% endif %}
+
+
+      {% if product.compare_at_price > product.price %}
+
+        {% if product.price_varies %}
+          {%- assign sale_price = product.price | money -%}
+          {{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+        {% else %}
+      <span class="sale">
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+        <span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+        {% else %}
+        <span class="money" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+        {% endif %}
+      </span>
+        {% endif %}
+
+      {% else %}
+
+        {% if product.price_varies %}
+          {%- assign price = product.price | money -%}
+          {% capture bold_hook %}
+      
+      {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+      	<span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>  
+      {% else %}
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+        <span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+      	{% else %}
+      
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+      	<span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>  
+      {% else %}
+        <span class="money" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+        {% endif %}
+      
+        {% endif %}
+        {% endif %}
+      
+      {% endcapture %}{{ 'products.product.from_text_html' | t: price: bold_hook }}
+        {% else %}
+          {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+        <span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+      	{% else %}
+        <span class="money" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+        {% endif %}
+        {% endif %}
+
+      {% endif %}
+    </p>
+  </div>
+  
+  <div class="product-pl-form-wrapper hide-on-grid">
+    <form id="product_form_{{product.id}}" action="/cart/add" method="post" class="shopify-product-form" enctype="multipart/form-data">
+      <div class="product-form-row">
+        <div class="product-pl-variations-wrapper">
+          <div class="product-pl-price-wrapper collection__price">
+            <p class="product-pl-vendor hide-on-list">{{ product.type }}</p>
+              <p class="product-pl-price product-pl-{{product.id}}" id="price-{{product.id}}">
+              	{% if product.compare_at_price > product.price %}
+                <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+                <s>
+                  {% if settings.enable_taxes and settings.tax_rate != '' %}
+                  {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+                  {{ product.compare_at_price | times:tax_price | money }} | {{ product.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}
+                  {% else %}
+                  {{ product.compare_at_price | money }}
+                  {% endif %}
+                </s>
+              {% endif %}
+
+
+              {% if product.compare_at_price > product.price %}
+
+                {% if product.price_varies %}
+                  {%- assign sale_price = product.price | money -%}
+                  {{ 'products.product.on_sale_from_html' | t: price: sale_price }}
+                {% else %}
+              <span class="sale">
+                
+                  {% if settings.enable_taxes and settings.tax_rate != '' %}
+                  {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+                  <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+                  <span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+                	{% else %}
+                  <span class="money" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+                  {% endif %}
+                
+                </span>
+                {% endif %}
+
+              {% else %}
+
+                {% if product.price_varies %}
+                  {%- assign price = product.price | money -%}
+                  {% capture bold_hook %}
+                
+                  {% if settings.enable_taxes and settings.tax_rate != '' %}
+                  {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+                  <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+                  <span class="money hide" data-product-id="{{ product.id }}">{{ price }}</span>
+                	{% else %}
+                  <span class="money" data-product-id="{{ product.id }}">{{ price }}</span>
+                  {% endif %}
+                
+                {% endcapture %}
+                {{ 'products.product.from_text_html' | t: price: bold_hook }}
+                {% else %}
+                  
+                    {% if settings.enable_taxes and settings.tax_rate != '' %}
+                    {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+                    <span class="money2" data-product-id="{{ product.id }}">{{ product.price | times:tax_price | money }} | {{ product.price | money }} {{settings.tax_rate_postfix_txt}}</span>
+                    <span class="money hide" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+                	{% else %}
+                    <span class="money" data-product-id="{{ product.id }}">{{ product.price | money }}</span>
+                    {% endif %}
+                
+                {% endif %}
+
+              {% endif %}
+              </p>
+            </div>
+          {% unless product.has_only_default_variant %}
+          	{% for option in product.options_with_values %}
+{% assign option_index = forloop.index0 %}
+<style>
+  label[for="product-select-option-{{ option_index }}"] { display: none; }
+  #product-select-option-{{ option_index }} { display: none; }
+  #product-select-option-{{ option_index }} + .custom-style-select-box { display: none !important; }
+</style>
+<script>$(window).load(function() { $('.selector-wrapper:eq({{ option_index }})').hide(); });</script>
+
+<div class="pl-swatch clearfix" data-option-index="{{ option_index }}">
+  <div class="header" style="display:none;">{{ option.name }}</div>
+  {% for value in option.values %}
+
+  <div data-value="{{ value | escape }}"
+       data-class="{{product.id}}-{{ forloop.index }}" 
+       class="swatch-pl-element {{ value | handle }} available {% if  option.selected_value == value %}swatch-active{% endif %}">
+
+    <input id="swatch-{{product.id}}-{{ option_index }}-{{ value | handle }}" 
+           type="radio" 
+           name="option-{{ option_index }}-{{product.id}}" 
+           value="{{ value | escape }}"
+           {% if  option.selected_value == value %} 
+           checked
+           {% endif %} 
+           data-single-option-selector  
+           data-index="option{{ option.position }}"/>
+
+    <label class="btn" for="swatch-{{product.id}}-{{ option_index }}-{{ value | handle }}">
+      {{ value }}
+    </label>
+    
+  </div>
+
+  {% endfor %}
+</div>
+{% endfor %}
+          {% endunless %}
+          <input type="hidden" name="id" value="" class="variant-hidden-value">
+          <ul class="no-js product-select-variant" data-product-id="price-{{product.id}}" data-product-select>
+          {% for variant in product.variants %}
+            {% if settings.enable_taxes and settings.tax_rate != '' %}
+            {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+            <li 
+                data-id="{{ variant.id }}" 
+                data-compare-price="{{variant.compare_at_price}}" 
+                data-compare-price-html="{{ variant.compare_at_price | times:tax_price | money }} | {{ variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}" 
+                data-price="{{variant.price}}" 
+                data-price-html="{{ variant.price | times:tax_price | money }} | {{ variant.price | money }} {{settings.tax_rate_postfix_txt}}" 
+                data-value="{{ variant.title }}" 
+                {% unless variant.available %}disabled="disabled"{% endunless %} 
+                class="{% unless variant.available %}unavailable-variant{% endunless %} 
+                       {{product.id}}-{{ forloop.index }}">
+              <span class="money-new hide" data-compare-price="{{variant.compare_at_price | money}}" data-price="{{variant.price | money}}" data-product-id="{{product.id}}">{{ product.price | money }}</span>
+            	</li>
+            {% else %}
+            <li data-id="{{ variant.id }}" data-compare-price="{{variant.compare_at_price}}" data-compare-price-html="{{variant.compare_at_price | money }}" data-price="{{variant.price}}" data-price-html="{{variant.price | money }}" data-value="{{ variant.title }}" {% unless variant.available %}disabled="disabled"{% endunless %} class="{% unless variant.available %}unavailable-variant{% endunless %} {{product.id}}-{{ forloop.index }}"></li>
+          	{% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="product-pl-qty-box-wrapper">
+          <div class="product-form-row">
+            
+            <div class="product-pl-add-to-cart-wrapper">
+            	<div class="cart-quantity">
+                  <button type='button' value='-' class='qtyminus qty' field='Quantity-{{product.id}}'>{% include "icon-minus" %}</button>
+                  <input type="number" id="Quantity-{{product.id}}" name="quantity" value="1" min="1" class="input-reset input w-100 qty">
+                  <button type='button' value='+' class='qtyplus qty' field='Quantity-{{product.id}}'>{% include "icon-plus" %}</button>
+                </div>
+              
+              <button
+                type="submit"
+                name="add"
+                class="bttn buttonAddtoCart bttn--full"
+                data-add-to-cart
+                >
+                  <span class="w-100" data-add-to-cart-text>
+                    {{ 'products.product.add_to_cart' | t }}
+                  </span>
+              </button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

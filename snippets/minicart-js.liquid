@@ -1,0 +1,319 @@
+<script>
+  $(document).ready(function(){
+    
+    setInterval(function(){
+      var oldhtml =  $(".footer_recent_view .recently-viewed__products").html();
+      var newhtml = $(".recentlyview_minicart").html();
+      if(oldhtml != newhtml){
+       $(".recentlyview_minicart").html(oldhtml);
+      }
+    },1000)
+    
+    
+    
+    $('body').on('click','.cart_tab_2',function(e){
+      $(".cart_tab_title").removeClass("active");
+      $(this).addClass("active");
+      $("#crt").hide();
+      $(".recentlyview_minicart").show();
+    });
+    
+    $('body').on('click','.cart_tab_1',function(e){
+      $(".cart_tab_title").removeClass("active");
+      $(this).addClass("active");
+      $("#crt").show();
+      $(".recentlyview_minicart").hide();
+    });
+
+
+    $('body').on('click','.zenon_main_cart',function(e){
+      e.preventDefault();
+      $(".cartDrawer").toggleClass("active");
+    });
+
+
+    $(document).mouseup(function(e){
+      var container = $(".cartDrawer");
+      // if the target of the click isn't the container nor a descendant of the container
+      if (!container.is(e.target) && container.has(e.target).length === 0) 
+      {
+        container.removeClass("active");
+      }
+    });
+    
+    var htmlEntities = function(str) {
+      str = str.replace('ö', 'ö');
+      str = str.replace('Ö', 'Ö');
+      str = str.replace('ä', 'ä');
+      str = str.replace('Ä', 'Ä');
+      str = str.replace('ü', 'ü');
+      str = str.replace('Ü', 'Ü');
+      return str;
+    }
+    
+    var fixCartPrice = function(textValue) {
+      //console.log(node[0].innerText);
+      textValue = textValue.replace("$", "€");
+      textValue = textValue.replace(".", ",");
+      {% if settings.enable_taxes and settings.tax_rate != '' %}
+      var ptxt = '';
+      var txts, text, vat;
+      var passive_mode = false;
+      var rate_ex_vat_postfix_txt = "{{settings.tax_rate_postfix_txt}}";
+      var show_original_price = true;
+      var brackets = false;
+      var inc_vat_first = true;
+      var rt = {{settings.tax_rate}};
+      ptxt = htmlEntities(ptxt);
+      var rate = (rt / 100) + 1;
+      var matcher1;
+      var matcher2;
+      var matcher_dot = /\d{1,3}(,\d{3})*(\.\d{1,2})?/;
+      var matcher_comma = /\d{1,3}(\.\d{3})*(,\d{1,2})?/;
+      var txt = textValue;
+      var txt_old = '';
+      var match = null;
+      var match_dot = txt.match(matcher_dot);
+      var match_comma = txt.match(matcher_comma);
+      if (match_dot != null) match_dot = match_dot[0];
+      if (match_comma != null) match_comma = match_comma[0];
+      if (match_dot == null && match_comma == null) return;
+      var dec_sep = '.';
+      var group_sep = ',';
+      match = match_dot;
+      if (match_comma.length > match_dot.length) {
+        dec_sep = ',';
+        group_sep = '.';
+        match = match_comma;
+      }
+      var price = match;
+      txt_old = txt;
+      var price_normalized = '';
+      if (dec_sep == '.') price_normalized = price.replace(/,/g, '');
+      else price_normalized = price.replace(/\./g, '');
+      price_normalized = price_normalized.replace(/,/g, '.');
+      var price_new = 0; /* if(2=='0') price_new = (price_normalized*rate).toFixed(2); else { price_new = ((price_normalized*rate)*100)+''; price_new = price_new.split('.'); price_new = parseFloat(price_new[0]); price_new = (price_new/100).toFixed(2); }*/
+      price_new = (price_normalized * rate).toFixed(2);
+      if (2 == 0 && 0 == 0) price_new += '.00';
+      price_new = price_new.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+      if (isNaN(price_normalized)) return;
+      if (dec_sep == ',') {
+        price_new = price_new.replace(/,/g, '#');
+        price_new = price_new.replace(/\./g, ',');
+        price_new = price_new.replace(/#/g, '.');
+      }
+      txt = txt.replace(price, price_new);
+      if (show_original_price) {
+        var expost = '';
+        if (rate_ex_vat_postfix_txt != null) expost = ' ' + rate_ex_vat_postfix_txt;
+        var exp = txt_old + expost;
+        var incp = txt + ' ' + ptxt;
+        if (brackets) exp = '(' + exp + ')';
+        if (inc_vat_first)
+          /*txt = incp + ' | ' + exp;*/
+        {% if template == 'index' %}
+          txt = '<span class="orig-price">'+incp+'</span><span class="vat-price">'+exp+'</span>';
+        {% else %}
+        	txt = '<span class="orig-price">'+incp+'</span><span class="vat-price">'+exp+'</span>';
+        {% endif %}
+        else txt = exp + ' | ' + incp;
+      } else txt += ' ' + ptxt;
+
+      return txt;
+      
+      {% else %}
+      	return textValue;
+      {% endif %}
+
+    }
+
+
+    function refreshCart(cart) {
+      if(window.BOLD && BOLD.common && BOLD.common.cartDoctor && typeof BOLD.common.cartDoctor.fix === 'function'){
+          cart = BOLD.common.cartDoctor.fix(cart);
+      }
+      //console.log(cart);
+      //console.log(Shopify.formatMoney(cart.total_price));
+      $('.cart-count').text(cart.item_count);
+      $container = $("#crt");
+      if(cart.item_count === 0){
+      	$container.html('<p class="emptyCart text-center">Ihr Warenkorb ist leer.</p>');
+      } else {
+      	var total_price = Shopify.formatMoney(cart.total_price);
+        var htmlData = '';
+        htmlData += '<div class="quick-items">';
+        cart.items.forEach(function(item) {
+          var item_price = Shopify.formatMoney(item.price);
+        	htmlData += '<div class="quick-cart-item">';
+          
+          	htmlData += '<div class="quick-cart-image">';
+          	htmlData += '<a href="'+item.url+'" title="'+item.product_title+'">';
+          	htmlData += '<img src="'+item.image+'" alt="'+item.product_title+'">';
+          	htmlData += '</a>';
+          	htmlData += '</div>';
+          
+          	htmlData += '<div class="quick-cart-details-main">';
+          
+          	htmlData += '<div class="quick-cart-details">';
+          	htmlData += '<p class="ptitle">';
+          	htmlData += '<a href="'+item.url+'">';
+          	htmlData += item.product_title;
+          	htmlData += '</a>';
+          	htmlData += '</p>';
+          	htmlData += '<div class="pvarprice">';
+          	htmlData += '<div class="pprice">';
+          	htmlData += '<span class="money-cart" data-product-id="'+item.id+'">';
+          	//htmlData += '<span class="orig-price">';
+          	htmlData += fixCartPrice(item_price);
+          	//htmlData += '</span>';
+          	htmlData += '</span>';
+          	htmlData += '</div>';
+          	htmlData += '<div class="pvars">';
+          	htmlData += item.variant_title;
+          	htmlData += '</div>';
+          	htmlData += '</div>';
+          	htmlData += '</div>';
+          
+          	htmlData += '<div class="quick-cart-pqty">';
+          	htmlData += '<div class="qtyAdjust">';
+          	htmlData += '<span class="adjust minus">-</span>';
+          	htmlData += '<input type="text" size="2" name="updates[]" data-id="'+item.id+'" id="updates_'+item.id+'" value="'+item.quantity+'" onfocus="this.select();" class="tc item-quantity">';
+          	htmlData += '<span class="adjust plus">+</span>';
+          	htmlData += '</div>';
+          	htmlData += '<a class="remove_item" title="Remove item" href="#" data-id="'+item.id+'"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentcolor" stroke-width="2" style="display:inline-block;overflow:visible;"><path d="M1.0606601717798212 1.0606601717798212 L14.939339828220179 14.939339828220179"></path><path d="M14.939339828220179 1.0606601717798212 L1.0606601717798212 14.939339828220179"></path></svg></a>';
+          	htmlData += '</div>';
+          
+          	htmlData += '</div>';
+          	htmlData += '</div>';
+        });
+        htmlData += '</div>';
+        
+        htmlData += '<div class="quick-btn">';
+        htmlData += '<p class="ajax-cart-final-price">';
+        htmlData += 'Ihre Zwischensumme ist <span class="money-total-cart">'+fixCartPrice(total_price)+'</span> inklusive Mehrwertsteuer. Versand und Steuer werden am Checkout entgültig berechnet.';
+        htmlData += '</p>';
+        htmlData += '<a class="bttn" href="/cart">Zur Kasse</a>';
+        htmlData += '</div>';
+        $container.html(htmlData);
+      }
+    }
+    
+    var getCartJson = function(){
+    	$.getJSON('/cart.js', function(cart){
+        if(window.BOLD && BOLD.common && BOLD.common.eventEmitter && typeof BOLD.common.eventEmitter.emit === 'function'){
+          BOLD.common.eventEmitter.emit('BOLD_COMMON_cart_loaded', cart);
+        }
+        refreshCart(cart);
+      });
+    }
+    
+    getCartJson();
+    
+    function addToCartSuccess() {
+      var pageURL = window.location.href;    
+      var url = pageURL;
+      $.ajax({
+        type: 'GET',
+        url: url,
+        data: {},
+        beforeSend: function(xhr) {
+          $("#wraper_ajax").show();
+        },
+        complete: function (data) { 
+          //console.log($("#crt", data.responseText).html());
+          //$('#crt').html($("#crt", data.responseText).html());
+          //$(".cart-empty").hide();
+          history.pushState({
+            page: url
+          }, url, url);      
+          $("#wraper_ajax").hide();
+        }
+      });
+    }
+
+
+    $('body').on('click','.buttonAddtoCart',function(e){
+      e.preventDefault();
+      var btn = $(this);
+      var form = $(this).closest('form');
+      btn.attr('disabled', 'disabled');
+      btn.text('adding...');
+      form.find('.error').remove();
+
+      $.ajax({
+        type: 'POST',
+        url: '/cart/add.js',
+        data: form.serialize(),
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrown){
+          var response = $.parseJSON(jqXHR.responseText);
+          form.append('<p class="error">'+response.description+'</p>').find('.error').fadeIn().delay(4000).fadeOut();
+          btn.text('add to cart');
+          btn.removeAttr('disabled');
+        }
+      }).done(function( data ) {
+        addToCartSuccess();
+        btn.text(theme.strings.addToCart);
+        btn.removeAttr('disabled');
+        getCartJson();
+        $('.productGrid .productItem').removeClass('qvopen');
+        $('body').addClass('cartOpen');
+        $('.fullPage').addClass('witmenu');
+        $(".cartDrawer").toggleClass("active");
+      });
+
+    });
+
+
+    $('body').on('click', '.adjust',function(){
+      var input = $(this).parent().find('input');
+      var ip = parseInt(input.val());
+      if($(this).hasClass('plus')) {
+        ip = ip + 1;
+      } else {
+        ip = ip - 1;
+      }
+      if(ip==0) {
+        return false;
+      }
+      input.val(ip);
+
+      $('#crt').addClass('loading');
+      var id = parseInt(input.attr('data-id'));
+      $.ajax({
+        type: 'POST',
+        url: '/cart/update.js',
+        data: 'updates['+id+']='+ip,
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrown){
+          var response = $.parseJSON(jqXHR.responseText);
+          alert(response.description);
+          $('#crt').removeClass('loading');
+        }
+      }).done(function( data ) {
+        addToCartSuccess();
+        getCartJson();
+        $('#crt').removeClass('loading');
+      });
+    });
+
+    $("#crt").on('click', "a.remove_item", function(r){
+      $('#crt').addClass('loading');
+      r.preventDefault();
+      var id = $(this).data("id");
+      Shopify.changeItem(id,0, function(c){
+        $('.itemCount').text(c.item_count);
+        if(!c.item_count) {
+          $('#crt').empty();
+          $('#crt').append('<p class="emptyCart text-center">You have no items in your shopping cart.</p>');
+          $('#crt').removeClass('has-item');
+          $('#crt').removeClass('loading');
+          getCartJson();
+        }else{
+          addToCartSuccess();
+        }
+      });
+      getCartJson();
+    });
+  });
+</script>

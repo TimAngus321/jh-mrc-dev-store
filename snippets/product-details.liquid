@@ -1,0 +1,579 @@
+<div class="product__details product-pl-form-wrapper">
+  <div class="product__heading">
+
+    {% comment %}
+    <div data-price-wrapper>
+
+      <span data-product-price class="meta">
+        {% if is_placeholder %}
+          {{ 'homepage.onboarding.product_price' | t }}
+        {% else %}
+          {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.price | times:tax_price | money }} | {{ current_variant.price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.price | money }}
+        {% endif %}
+        {% endif %}
+      </span>
+
+      {% if product.compare_at_price_max > product.price %}
+        <span class="visually-hidden" data-compare-text>{{ 'products.product.regular_price' | t }}</span>
+        <s class="meta" data-compare-price>
+          {% if current_variant.compare_at_price > current_variant.price %}
+            {% if settings.enable_taxes and settings.tax_rate != '' %}
+        {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+        {{ current_variant.compare_at_price | times:tax_price | money }} | {{ current_variant.compare_at_price | money }} {{settings.tax_rate_postfix_txt}}
+        {% else %}
+        {{ current_variant.compare_at_price | money }}
+        {% endif %}
+          {% endif %}
+        </s>
+      {% endif %}
+    </div>
+    {% endcomment %}
+
+    <h1 class="product__title type-heading-1">
+      {% if is_placeholder %}
+        {{ 'homepage.onboarding.product_title' | t }}
+      {% else %}
+        {{ product.title }}
+      {% endif %}
+    </h1>
+    {% if section.settings.show_vendor %}
+      <p class="product__vendor">{{ product.vendor }}</p>
+    {% endif %}
+    
+    {% if section.settings.show_product_type %}
+      <p class="product__vendor">{{ product.type }}</p>
+    {% endif %}
+  </div>
+
+
+  <div>
+    {% if product != blank %}
+      {% form 'product', product %}
+	<div class="bold_qb_grid" data-variant-id="{{ product.selected_or_first_available_variant.id }}"></div>
+      {% if template.name == 'product' %}
+        <div class="product__sticky-element" data-sticky-element>
+          <div class="product__sticky-element-heading">
+            <a href="/" class="logo-image color-inherit">
+              {{ shop.name }}
+            </a>
+          </div>
+          <div class="product__sticky-right">
+            <img class="product__sticky-image" src="{{ product.images[0] | img_url: "thumbnail" }}" />
+            <button
+              {% if bold_variants_size != 1 %}
+                data-has-variants
+              {% endif %}
+              type="submit"
+              name="add"
+              class="product__sticky-button"
+            >
+              Jetzt einkaufen
+            </button>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if settings.enable_taxes and settings.tax_rate != '' %}
+    	{% include 'product-new-variant' %}
+      {% else %}
+    	{% include 'product-orig-variant' %}
+      {% endif %}
+
+     {% comment %}
+<!--       <div class="mb3">
+        <label for="Quantity" class="dib mb2">{{ 'products.product.quantity' | t }}</label>
+        <input type="number" id="Quantity" name="quantity" value="1" min="1" class="input-reset input w-100">
+      </div> -->
+    {% endcomment %}
+    
+    <div class="cart-quantity">
+      <button type='button' value='-' class='qtyminus qty' field='Quantity'>{% include "icon-minus" %}</button>
+      <input type="number" id="Quantity" name="quantity" value="1" min="1" class="input-reset input w-100 qty">
+      <button type='button' value='+' class='qtyplus qty' field='Quantity'>{% include "icon-plus" %}</button>
+    </div>
+    
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $('.qtyplus').click(function(e){
+          e.preventDefault();          
+          fieldName = $(this).attr('field');
+          var currentVal = parseInt($('input[id='+fieldName+']').val());
+          if (!isNaN(currentVal)) {
+            $('input[id='+fieldName+']').val(currentVal + 1);
+          } else {
+            $('input[id='+fieldName+']').val(1);
+          }
+        });
+        
+        $(".qtyminus").click(function(e) {
+          e.preventDefault();
+          fieldName = $(this).attr('field');
+          var currentVal = parseInt($('input[id='+fieldName+']').val());
+          if (!isNaN(currentVal) && currentVal > 1) {
+            $('input[id='+fieldName+']').val(currentVal - 1);
+          } else {
+            $('input[id='+fieldName+']').val(1);
+          }
+        });
+        
+        {% if settings.enable_taxes and settings.tax_rate != '' %}
+        
+        var htmlEntities = function(str) {
+            str = str.replace('ö', 'ö');
+            str = str.replace('Ö', 'Ö');
+            str = str.replace('ä', 'ä');
+            str = str.replace('Ä', 'Ä');
+            str = str.replace('ü', 'ü');
+            str = str.replace('Ü', 'Ü');
+            return str;
+          }
+
+          var plFinalPrice = function(textValue) {
+            //console.log(node[0].innerText);
+            var rt = {{settings.tax_rate}};
+            var rate = (rt / 100) + 1;
+            var matcher1;
+            var matcher2;
+            var matcher_dot = /\d{1,3}(,\d{3})*(\.\d{1,2})?/;
+            var matcher_comma = /\d{1,3}(\.\d{3})*(,\d{1,2})?/;
+            var txt = textValue;
+            var txt_old = '';
+            var match = null;
+            var match_dot = txt.match(matcher_dot);
+            var match_comma = txt.match(matcher_comma);
+            if (match_dot != null) match_dot = match_dot[0];
+            if (match_comma != null) match_comma = match_comma[0];
+            if (match_dot == null && match_comma == null) return;
+            var dec_sep = '.';
+            var group_sep = ',';
+            match = match_dot;
+            if (match_comma.length > match_dot.length) {
+              dec_sep = ',';
+              group_sep = '.';
+              match = match_comma;
+            }
+            var price = match;
+
+            txt_old = txt;
+            var price_normalized = '';
+            if (dec_sep == '.') price_normalized = price.replace(/,/g, '');
+            else price_normalized = price.replace(/\./g, '');
+            price_normalized = price_normalized.replace(/,/g, '.');
+
+            var price_new = 0; /* if(2=='0') price_new = (price_normalized*rate).toFixed(2); else { price_new = ((price_normalized*rate)*100)+''; price_new = price_new.split('.'); price_new = parseFloat(price_new[0]); price_new = (price_new/100).toFixed(2); }*/
+            price_new = (price_normalized * rate).toFixed(2);
+            if (2 == 0 && 0 == 0) price_new += '.00';
+            price_new = price_new.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+
+            if (isNaN(price_normalized)) return;
+            if (dec_sep == ',') {
+              price_new = price_new.replace(/,/g, '#');
+              price_new = price_new.replace(/\./g, ',');
+              price_new = price_new.replace(/#/g, '.');
+            }
+            return price_normalized;
+          }
+
+          var rateValue = function(bold,variant){
+              variant = parseFloat(variant);
+              bold = parseFloat(bold);
+            var newValue = variant - bold;
+            newValue = newValue.toFixed(2);
+            if(newValue > 0){
+            newValue = newValue / variant;
+              newValue = newValue * 100;
+              newValue = newValue.toFixed(2);
+              //newValue = Math.round(newValue);
+            }
+            
+            return newValue;
+          }
+
+          var priceFinal = function(rateP, priceP){
+            console.log('p= '+priceP+' r= '+rateP);
+              var newVal  = (priceP * rateP) / 100;
+              newVal = priceP - newVal;
+            var lenVal = newVal.toFixed(2);
+            var len = lenVal.length;
+          var lastone = +lenVal.toString().split('').pop();
+          //newVal = newVal.toFixed(3);
+            
+            //console.log(len);
+            if(lastone == 0) {
+            	newVal = newVal.toFixed(1);
+                newVal = newVal.toString();
+              newVal = newVal+'0';
+            } else if (lastone == 1) {
+            	newVal = newVal.toFixed(2);
+            } else {
+            	newVal = newVal.toFixed(2);
+              
+            }
+              
+            console.log('finalP= '+newVal);
+            
+            switch(newVal){
+              case '101.78':
+                newVal = '101.76';
+                break;
+                
+              case '35.63':
+                newVal = '35.62';
+                break;
+                
+              case '106.87':
+                newVal = '106.86';
+                break;
+                
+              case '106.85':
+                newVal = '106.86';
+                break;  
+                
+              case '22.01':
+                newVal = '22.02';
+                break;  
+               
+              case '66.04':
+                newVal = '66.06';
+                break;
+                
+              case '113.71':
+                newVal = '113.70';
+                break;
+                
+              case '37.89':
+                newVal = '37.90';
+                break;  
+                
+              case '119.71':
+                newVal = '119.70';
+                break;
+                
+              case '39.89':
+                newVal = '39.90';
+                break;
+                
+              case '119.69':
+                newVal = '119.70';
+                break;
+                
+              case '41.91':
+                newVal = '41.90';
+                break;
+                
+              case '125.71':
+                newVal = '125.70';
+                break;
+                
+              case '125.69':
+                newVal = '125.70';
+                break;
+                
+              case '25.89':
+                newVal = '25.90';
+                break;
+                
+              case '77.68':
+                newVal = '77.70';
+                break;
+                
+              case '39.81':
+                newVal = '39.80';
+                break;
+                
+              case '119.42':
+                newVal = '119.40';
+                break;
+              
+              case '24.59':
+                newVal = '24.60';
+                break;
+                
+              case '73.79':
+                newVal = '73.80';
+                break;
+                
+              case '94.27':
+                newVal = '94.26';
+                break;
+                
+              case '94.25':
+                newVal = '94.26';
+                break;
+                
+              case '19.41':
+                newVal = '19.42';
+                break;
+                
+              case '58.25':
+                newVal = '58.26';
+                break;
+                
+              case '58.27':
+                newVal = '58.26';
+                break;
+                
+              case '79.63':
+                newVal = '79.62';
+                break;
+                
+              case '29.35':
+                newVal = '29.34';
+                break;
+                
+              case '88.04':
+                newVal = '88.02';
+                break;
+                
+              case '18.13':
+                newVal = '18.14';
+                break;
+                
+              case '54.40':
+                newVal = '54.42';
+                break;  
+                
+                default:
+            }
+            
+			console.log('finalPp= '+newVal);
+            
+              newVal = '€'+newVal;
+              newVal = newVal.replace(".", ",");
+
+            var rate_ptxt = "";
+            var rate_ex_vat_postfix_txt = "{{settings.tax_rate_postfix_txt}}";
+            var ptxt = '';
+            var txts, text, vat;
+            var passive_mode = false;
+            var show_original_price = true;
+            var brackets = false;
+            var inc_vat_first = true;
+
+            if (typeof rate_ptxt !== 'undefined') ptxt = rate_ptxt;
+            else ptxt = 'inc VAT';
+            if (ptxt == '') ptxt = '\u0020';
+
+            var rt = {{settings.tax_rate}};
+            ptxt = htmlEntities(ptxt);
+            var rate = (rt / 100) + 1;
+            var matcher1;
+            var matcher2;
+            var matcher_dot = /\d{1,3}(,\d{3})*(\.\d{1,2})?/;
+            var matcher_comma = /\d{1,3}(\.\d{3})*(,\d{1,2})?/;
+            var txt = newVal;
+            var txt_old = '';
+            var match = null;
+            var match_dot = txt.match(matcher_dot);
+            var match_comma = txt.match(matcher_comma);
+            if (match_dot != null) match_dot = match_dot[0];
+            if (match_comma != null) match_comma = match_comma[0];
+            if (match_dot == null && match_comma == null) return;
+            var dec_sep = '.';
+            var group_sep = ',';
+            match = match_dot;
+            if (match_comma.length > match_dot.length) {
+              dec_sep = ',';
+              group_sep = '.';
+              match = match_comma;
+            }
+            var price = match;
+            txt_old = txt;
+            var price_normalized = '';
+            if (dec_sep == '.') price_normalized = price.replace(/,/g, '');
+            else price_normalized = price.replace(/\./g, '');
+            price_normalized = price_normalized.replace(/,/g, '.');
+            var price_new = 0; /* if(2=='0') price_new = (price_normalized*rate).toFixed(2); else { price_new = ((price_normalized*rate)*100)+''; price_new = price_new.split('.'); price_new = parseFloat(price_new[0]); price_new = (price_new/100).toFixed(2); }*/
+            price_new = (price_normalized * rate).toFixed(2);
+            if (2 == 0 && 0 == 0) price_new += '.00';
+            price_new = price_new.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+            if (isNaN(price_normalized)) return;
+            if (dec_sep == ',') {
+              price_new = price_new.replace(/,/g, '#');
+              price_new = price_new.replace(/\./g, ',');
+              price_new = price_new.replace(/#/g, '.');
+            }
+            txt = txt.replace(price, price_new);
+            if (show_original_price) {
+              var expost = '';
+              if (rate_ex_vat_postfix_txt != null) expost = ' ' + rate_ex_vat_postfix_txt;
+              var exp = txt_old + expost;
+              var incp = txt + ' ' + ptxt;
+              if (brackets) exp = '(' + exp + ')';
+              if (inc_vat_first)
+                   /*txt = incp + ' | ' + exp;*/
+            {% if template == 'index' %}
+              txt = '<span class="orig-price">'+incp+'</span><span class="vat-price">'+exp+'</span>';
+            {% else %}
+                txt = '<span class="orig-price">'+incp+'</span><span class="vat-price">'+exp+'</span>';
+            {% endif %}
+              else txt = exp + ' | ' + incp;
+            } else txt += ' ' + ptxt;
+                return txt;
+          }
+          
+       $('.product-pl-variations-wrapper .swatch-pl-element').on('click', function(e) {
+          e.preventDefault();
+        	var swatch_value = $(this).data('value');
+          var swatch_class = $(this).data('class');
+          $(this).find('input[type="radio"]').prop("checked", true);
+          $(this).closest('.product-pl-variations-wrapper').find('.swatch-pl-element').removeClass('swatch-active');
+          $(this).addClass('swatch-active');
+          var select_value = '';
+          var compare_price = '';
+          var price = '';
+          var compare_price_html = '';
+          var price_html = '';
+          var value = '';
+          var product_id = $(this).closest('.product-pl-variations-wrapper').find('.product-select-variant').data('product-id');
+          var $variant_item = $(this).closest('.product-pl-variations-wrapper').find('.product-select-variant li.'+swatch_class);
+          select_value = $variant_item.data('value');
+          value = $variant_item.data('id');
+          compare_price = $variant_item.data('compare-price');
+          price = $variant_item.data('price');
+          compare_price_html = $variant_item.data('compare-price-html');
+          price_html = $variant_item.data('price-html');
+         
+         var bold_price = $(this).closest('.product-pl-form-wrapper').find('.meta.money').text();
+          bold_price = plFinalPrice(bold_price);
+         console.log(bold_price);
+          var product_price = $(this).closest('.product-pl-form-wrapper').find('.meta.money-new').text();
+          product_price = plFinalPrice(product_price);
+         console.log(product_price);
+          var rate_value = rateValue(bold_price,product_price);
+         
+         console.log(rate_value);
+         
+         var variant_cmp_price = $variant_item.find('.money-variant').data('compare-price');
+          var variant_org_price = $variant_item.find('.money-variant').data('price');
+          variant_cmp_price = plFinalPrice(variant_cmp_price);
+          variant_org_price = plFinalPrice(variant_org_price);
+          console.log(variant_org_price);
+          
+          var org_finalPrice = priceFinal(rate_value, variant_org_price);
+          
+          if($variant_item.hasClass('unavailable-variant')) {
+            $(this).closest('.product-pl-form-wrapper').find('.buttonAddtoCart span').text(theme.strings.soldOut);
+            $(this).closest('.product-pl-form-wrapper').find('.buttonAddtoCart').prop( "disabled", true );
+          } else {
+            $(this).closest('.product-pl-form-wrapper').find('.buttonAddtoCart span').text(theme.strings.addToCart);
+            $(this).closest('.product-pl-form-wrapper').find('.buttonAddtoCart').prop( "disabled", false );
+          }
+          
+          //console.log(select_value+' = '+swatch_value);
+          if(select_value == swatch_value) {
+            
+            if(compare_price > price && compare_price != ''){
+              //console.log(compare_price);
+              $(this).closest('.product-pl-form-wrapper').find('.product-pl-price').html('<s>'+compare_price_html+'</s> '+price_html);
+            } else {
+               //console.log(price_html);
+              $(this).closest('.product-pl-form-wrapper').find('.product-pl-price').html(org_finalPrice);
+            }
+          }
+         
+         	var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?variant=' + value;
+			window.history.replaceState({path: newurl}, '', newurl);
+          
+          $(this).closest('.product-pl-variations-wrapper').find('.variant-hidden-value').val(value);
+         	$(this).closest('.product-pl-variations-wrapper').find('.product-single-page-variant').val(value).change();
+         
+         	$(this).closest('.product-pl-variations-wrapper').find('.product-single-page-variant').trigger('click');
+        });
+        
+        $('.product-pl-form-wrapper').each(function() {
+          var $swatch_item = $(this).find('.swatch-pl-element.swatch-active');
+          var swatch_value = $swatch_item.data('value');
+          var swatch_class = $swatch_item.data('class');
+          
+          var select_value = '';
+          var compare_price = '';
+          var price = '';
+          var compare_price_html = '';
+          var price_html = '';
+          var value = '';
+          
+          var product_id = $(this).find('.product-select-variant').data('product-id');
+          var $variant_item = $(this).find('.product-select-variant li.'+swatch_class);
+          
+          select_value = $variant_item.data('value');
+          value = $variant_item.data('id');
+          compare_price = $variant_item.data('compare-price');
+          price = $variant_item.data('price');
+          compare_price_html = $variant_item.data('compare-price-html');
+          price_html = $variant_item.data('price-html');
+          
+          if($variant_item.hasClass('unavailable-variant')) {
+            $(this).find('.buttonAddtoCart span').text(theme.strings.soldOut);
+            $(this).find('.buttonAddtoCart').prop( "disabled", true );
+          } else {
+            $(this).find('.buttonAddtoCart span').text(theme.strings.addToCart);
+            $(this).find('.buttonAddtoCart').prop( "disabled", false );
+          }
+          
+          if(select_value == swatch_value) {
+            
+            if(compare_price > price && compare_price != ''){
+              //console.log(compare_price);
+              //$(this).find('.product-pl-price').html('<s>'+compare_price_html+'</s> '+price_html);
+            } else {
+               //console.log(price_html);
+              //$(this).find('.product-pl-price').html(price_html);
+            }
+          }
+          
+          var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?variant=' + value;
+			window.history.replaceState({path: newurl}, '', newurl);
+          
+          $(this).find('.variant-hidden-value').val(value);
+        });
+        
+        {% endif %}
+        
+      });
+    </script>
+
+      <button
+        type="submit"
+        name="add"
+        class="bttn buttonAddtoCart bttn--full {% if section.settings.enable_payment_button %}bttn--secondary{% endif %} "
+        data-add-to-cart
+        {% unless current_variant.available %}disabled="disabled"{% endunless %}>
+          <span class="w-100" data-add-to-cart-text>
+            {% if current_variant.available %}
+              {{ 'products.product.add_to_cart' | t }}
+            {% else %}
+              {{ 'products.product.sold_out' | t }}
+            {% endif %}
+          </span>
+      </button>
+      {% if section.settings.enable_payment_button and current_variant.available %}
+        {{ form | payment_button }}
+      {% endif %}
+      {% endform %}
+    {% endif %}
+  </div>
+
+  <div class="product__description type-body-regular rte">
+    {% if is_placeholder %}
+      {{ 'homepage.onboarding.product_description' | t }}
+    {% else %}
+      {{ product.description }}
+    {% endif %}
+  </div>
+
+  {% if section.settings.show_share_buttons %}
+    {% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product %}
+  {% endif %}
+
+  {% unless product == empty %}
+    <script type="application/json" data-product-json>
+      {%- include 'bold-product', output: 'json' -%}
+      {% comment %}{{ product | json }} {% endcomment %}
+    </script>
+  {% endunless %}
+</div>

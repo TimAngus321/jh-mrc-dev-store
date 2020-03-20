@@ -1,0 +1,96 @@
+<div class="cartDrawer">
+  <div class="cart_top_tab">
+    <div class="cart_tab_title active cart_tab_1">Warenkorb</div>
+    <div class="cart_tab_title cart_tab_2">Zuletzt angesehen</div>
+  </div>
+  <div class="recentlyview_minicart">
+     {% comment %}{% include 'recent-viewed'%}{% endcomment %}
+    <div></div>
+  </div>
+  <div id="crt" class="{% if cart.item_count > 0 %}has-item{% endif %}">
+    <div class="quick-items">
+      {% for item in cart.items %}
+      <div class="quick-cart-item">
+        <div class="quick-cart-image">
+          <a href="{{ item.product.url }}" title="{{ item.product.title | escape }}">
+            <img src="{{ item | img_url: '200x' }}"  alt="{{ item.alt | escape }}" />
+          </a>
+        </div>
+        
+        <div class="quick-cart-details-main">
+        <div class="quick-cart-details">
+          <p class="ptitle"><a href="{{ item.product.url }}">{{ item.product.title | remove: ' / Default' | remove: 'Default'  }}</a></p>
+          
+          <div class="pvarprice">
+            {% comment %}
+            <div class="pvars">
+              {% for option_title in item.product.options %}
+              {% unless item.variant.options[forloop.index0] contains 'Default' %}
+              {{ option_title }} : {{item.variant.options[forloop.index0] }}
+              {% endunless%}
+              {% endfor %}
+            </div>
+            {% endcomment %}
+            <div class="pprice">
+              {% if settings.enable_taxes and settings.tax_rate != '' %}
+              {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+              <span class="money2" data-product-id="{{ item.product.id }}"><span class="orig-price">{{ item.price | times:tax_price | money }}</span><span class="vat-price">{{ item.price | money }} {{settings.tax_rate_postfix_txt}}</span></span>
+            
+              <span class="money hide" data-product-id="{{ item.product.id }}">{{ item.price | money }}</span>
+              {% else %}
+              {{ item.price | money }}
+              {% endif %}
+            </div>
+            <div class="pvars">
+              {% for option_title in item.product.options %}
+              {% unless item.variant.options[forloop.index0] contains 'Default' %}
+              {{item.variant.options[forloop.index0] }}
+              {% endunless%}
+              {% endfor %}
+            </div>
+          </div>
+         
+        </div>
+        <div class="quick-cart-pqty">
+          <div class="qtyAdjust">
+            <span class="adjust minus">-</span>
+            <input type="text" size="2" name="updates[]" data-id="{{ item.id }}" id="updates_{{ item.id }}" value="{{ item.quantity }}" onfocus="this.select();" class="tc item-quantity" />
+            <span class="adjust plus">+</span> 
+          </div>
+          <a class="remove_item" title="Remove item" href="#" data-id="{{ item.variant.id }}"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentcolor" stroke-width="2" style="display:inline-block;overflow:visible;"><path d="M1.0606601717798212 1.0606601717798212 L14.939339828220179 14.939339828220179"></path><path d="M14.939339828220179 1.0606601717798212 L1.0606601717798212 14.939339828220179"></path></svg></a>
+        </div>
+        </div>
+        
+      </div>
+      {% for p in item.properties  %}
+      {% if p.first == 'shipping_interval_frequency'%}
+      <span class="hasSubsribe"></span>
+      {% break %}
+      {% endif%}    
+      {% endfor %}
+      {% endfor %}
+    </div>
+
+    {% if cart.item_count != 0 %}
+    <div class="quick-btn">
+      {% if settings.enable_taxes and settings.tax_rate != '' %}
+      {%- assign tax_price = settings.tax_rate | divided_by: 100.0 | plus: 1.00 -%}
+      <p class="ajax-cart-final-price">Ihre Zwischensumme ist <span class="money2"><span class="orig-price">{{ cart.total_price | times:tax_price | money }}</span><span class="vat-price">{{ cart.total_price | money }} {{settings.tax_rate_postfix_txt}}</span></span> inklusive Mehrwertsteuer. Versand und Steuer werden am Checkout entgültig berechnet.
+      <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_total" style="display:none !important;"></span>
+        <span class="money hide">{{ cart.total_price | money }}</span>
+      </p>
+      {% else %}
+      <span class="Bold-theme-hook-DO-NOT-DELETE bold_cart_total" style="display:none !important;"></span>
+      <p class="ajax-cart-final-price">Ihre Zwischensumme ist <span class="money">{{ cart.total_price | money }}</span> inklusive Mehrwertsteuer. Versand und Steuer werden am Checkout entgültig berechnet.
+      </p>
+      {% endif %}
+      {% comment %}<p>Your subtotal today is <span>{{ cart.total_price | money }}</span>. Shipping and taxes will calculated at checkout.</p>{% endcomment %}
+      <a class="bttn" href="/cart">Zur Kasse</a>
+     
+    </div>
+    {% else %}
+    <p class="emptyCart text-center">Ihr Warenkorb ist leer.</p>
+    {% endif %}
+  </div>
+</div>
+

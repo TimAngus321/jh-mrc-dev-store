@@ -1,44 +1,42 @@
-{% comment %}
-    Renders a pagination bar
+<div class="pagination">
+  <p>{{ 'general.pagination.viewing' | t: of: of, total: total }} {{ type | t }}</p>
+  <ul class="list ma0 pa0">
 
-    Accepts:
-    - paginate: {Object} Paginate Liquid object (required)
+    {%- if paginate.previous != blank -%}
+      <li class="pagination__item">
+        <a href="{{ paginate.previous.url }}">{{ paginate.previous.title }}</a>
+      </li>
+    {%- endif -%}
 
-    Usage:
-    {% include 'pagination', paginate: paginate %}
-{% endcomment %}
-<ul class="list--inline pagination">
-  {% unless paginate.previous.is_link %}
-    <li aria-hidden="true">
-      <button class="btn btn--tertiary btn--narrow" disabled>
-        {% include 'icon-arrow-left' %}
-        <span class="icon__fallback-text">{{ 'general.pagination.previous' | t }}</span>
-      </button>
-    </li>
-    {% else %}
-    <li>
-      <a href="{{ paginate.previous.url }}" class="btn btn--tertiary btn--narrow">
-        {% include 'icon-arrow-left' %}
-        <span class="icon__fallback-text">{{ 'general.pagination.previous' | t }}</span>
-      </a>
-    </li>
-  {% endunless %}
-  <li class="pagination__text">
-    {{ 'general.pagination.current_page' | t: current: paginate.current_page, total: paginate.pages }}
-  </li>
-  {% unless paginate.next.is_link %}
-    <li aria-hidden="true">
-      <button class="btn btn--tertiary btn--narrow" disabled>
-        {% include 'icon-arrow-right' %}
-        <span class="icon__fallback-text">{{ 'general.pagination.next' | t }}</span>
-      </button>
-    </li>
-  {% else %}
-    <li>
-      <a href="{{ paginate.next.url }}" class="btn btn--tertiary btn--narrow">
-        {% include 'icon-arrow-right' %}
-        <span class="icon__fallback-text">{{ 'general.pagination.next' | t }}</span>
-      </a>
-    </li>
-  {% endunless %}
-</ul>
+    {%- for part in paginate.parts -%}
+      {%- capture li_classes -%}
+        {%- if part.title == paginate.current_page -%}
+          pagination__item pagination__item--active
+        {%- elsif part.title == "&hellip;" -%}
+          pagination__ellip
+        {%- else -%}
+          pagination__item
+        {%- endif -%}
+      {%- endcapture -%}
+
+      <li class="{{ li_classes }}">
+        {%- if part.is_link == true -%}
+          <a href="{{ part.url }}" >{{ part.title }}</a>
+        {%- else -%}
+          {%- if part.title == "&hellip;" -%}
+            <span>{{ part.title }}</span>
+          {%- else -%}
+            <span>{{ part.title }}</span>
+          {%- endif -%}
+        {%- endif -%}
+      
+      </li>
+    {%- endfor -%}
+
+    {%- if paginate.next != blank -%}
+      <li class="pagination__item">
+        <a href="{{ paginate.next.url }}">{{ paginate.next.title }}</a>
+      </li>
+    {%- endif -%}
+  </ul>
+</div>
