@@ -5,11 +5,12 @@
     </h3>
         <div class="caption__inner-container">
             {% for block in section.blocks %}
-        <div class="caption__image-container">
-            <img src="{{ block.settings.image | img_url: 'master' }}" />
-          <p class="caption">{{ block.settings.text | escape }} </p>
+                <div class="caption__image-container">
+                    <img src="{{ block.settings.image | img_url: 'master' }}" />
+                        <p class="caption">{{ block.settings.text | escape }} </p>
             {% endfor %}
-          </div>
+                </div>
+        </div>
    
 </div>
 
