@@ -41,5 +41,8 @@
      text-align: center;
 	}
         
-        
+  /* Social media Icons home page colour */
+  .footer__bottom-right svg {
+    fill: var(--color-footer-text-meta) !important;
+  }
       
